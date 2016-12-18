@@ -73,28 +73,30 @@ else:
 
     model.add(Convolution2D(8, 9, 9, input_shape=input_shape))
     model.add(Activation('relu'))
-
     model.add(MaxPooling2D(pool_size=(2, 2)))
-
     model.add(Convolution2D(16, 7, 7))
     model.add(Activation('relu'))
-
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
 
     model.add(Convolution2D(32, 5, 5))
     model.add(Activation('relu'))
-
     model.add(MaxPooling2D(pool_size=(2, 2)))
-
     model.add(Convolution2D(64, 3, 3))
     model.add(Activation('relu'))
-
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
 
     model.add(Convolution2D(250, 3, 3))
     model.add(Activation('relu'))
 
     model.add(Flatten())
+
+    model.add(Dense(512))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
 
