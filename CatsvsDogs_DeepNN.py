@@ -6,12 +6,14 @@ import numpy as np
 from random import shuffle
 import matplotlib.pyplot as plt
 
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD
 from keras.utils import np_utils
-from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import EarlyStopping
+from keras.regularizers import l2, activity_l2
 
 from Keras_Functions import save_model_to_disk, load_model_from_disk, img_to_matrix
 
@@ -21,7 +23,7 @@ np.random.seed(1337)
 # setting training parameters
 batch_size = 50
 nb_classes = 2
-nb_epoch = 100
+nb_epoch = 400
 
 # Flag if the model should be loaded or trained
 load_model_flag = True
@@ -38,7 +40,7 @@ input_shape = (img_rows, img_cols, 1)
 img_dir = 'train/'
 image_files = [img_dir + f for f in os.listdir(img_dir)]
 shuffle(image_files)
-train_size = 5 * len(image_files) // 6
+train_size = 9 * len(image_files) // 10
 train_images = image_files[:train_size]
 test_images = image_files[train_size:]
 
@@ -92,12 +94,12 @@ else:
     model.add(Activation('relu'))
 
     model.add(Flatten())
-
     model.add(Dense(512))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
 
-    model.add(Dense(nb_classes))
+
+    model.add(Dense(nb_classes, W_regularizer=l2(0.01), activity_regularizer=activity_l2(0.01)))
     model.add(Activation('softmax'))
 
     sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
@@ -119,6 +121,10 @@ else:
     # (std, mean, and principal components if ZCA whitening is applied)
     datagen.fit(X_train)
 
+    print("Creating early stopping callback")
+
+    early_stopping = EarlyStopping(monitor='loss', min_delta=1e-3, patience=3, mode='auto')
+
     print("Fitting model")
 
     # fits the model on batches with real-time data augmentation
@@ -126,6 +132,7 @@ else:
         samples_per_epoch= len(X_train),
         nb_epoch=nb_epoch,
         verbose=1,
+        #callbacks = [early_stopping],
         validation_data=(X_test, Y_test))
 
     save_model_to_disk(model)
