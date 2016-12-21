@@ -23,7 +23,7 @@ np.random.seed(1337)
 # setting training parameters
 batch_size = 50
 nb_classes = 2
-nb_epoch = 400
+nb_epoch = 2000
 
 # Flag if the model should be loaded or trained
 load_model_flag = True
